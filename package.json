@@ -1,0 +1,36 @@
+{
+  "name": "dinger-bot",
+  "version": "2.0.0",
+  "description": "Discord bot that tracks MLB home run predictions and announces successful calls using Twitter API integration",
+  "main": "index.js",
+  "author": "Riley Hoffman",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/DingerBot"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "baseball",
+    "mlb",
+    "twitter",
+    "home-run"
+  ],
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "google-spreadsheet": "^3.1.15",
+    "needle": "^2.8.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
