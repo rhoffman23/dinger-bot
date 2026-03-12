@@ -14,7 +14,6 @@ A Discord bot that tracks daily home run predictions and logs them to a Google S
 |---------|-------------|
 | `!hr-call <player name>` | Submit your HR prediction for today |
 | `!remove-call` | Remove your call and pick again |
-| `!calls` | See all of today's predictions |
 | `!help` | Show available commands |
 
 ---

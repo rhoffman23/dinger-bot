@@ -94,21 +94,11 @@ discordClient.on('messageCreate', async (msg) => {
             '**🏟️ Dinger Bot — Commands**\n\n' +
             '`!hr-call <player name>` — Submit your HR prediction for today\n' +
             '`!remove-call` — Remove your call for today\n' +
-            '`!calls` — See today\'s calls\n' +
+
             '`!help` — This message';
 
         await msg.author.send(helpMsg)
             .catch(() => msg.reply(helpMsg));
-    }
-
-    // !calls — Show today's predictions
-    if (msg.content.startsWith('!calls')) {
-        if (todaysPlayerCalls.length === 0) {
-            await msg.reply('No calls yet today. Be the first with `!hr-call <player>`!');
-        } else {
-            const callList = todaysPlayerCalls.map((p) => `• ${p}`).join('\n');
-            await msg.reply(`**Today's HR Calls (${currentDate}):**\n${callList}`);
-        }
     }
 
     // !remove-call
