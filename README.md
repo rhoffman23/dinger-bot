@@ -37,7 +37,27 @@ A Discord bot that tracks daily home run predictions and logs them to a Google S
 
 > **Send these instructions to the Google Sheet owner:**
 
-#### What the sheet owner needs to do:
+#### What the Discord server owner needs to do:
+
+1. **Invite the bot** to your server using this link:
+   ```
+   https://discord.com/oauth2/authorize?client_id=859256971857362954&permissions=3072&scope=bot
+   ```
+   - Click the link → select your server → click **Authorize**
+
+2. **Create a channel** for HR calls (e.g. `#hr-calls`)
+   - The bot listens for `!hr-call` commands in any channel it can see
+   - Recommended: dedicate a channel so calls don't get lost in general chat
+
+3. **Set channel permissions** (optional but recommended):
+   - Make sure the bot has **Send Messages** and **Read Messages** in the channel
+   - You can restrict `!hr-call` to specific channels by only giving the bot access there
+
+That's it — once the bot is in the server, users can start making calls immediately.
+
+---
+
+#### What the Google Sheet owner needs to do:
 
 1. **Share the Google Sheet** with this email address as an **Editor**:
    ```
