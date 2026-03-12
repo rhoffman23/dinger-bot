@@ -1,373 +1,90 @@
-# 🔔 Dinger Bot
+# 🏟️ Dinger Bot
 
-A Discord bot that tracks MLB home run predictions and announces successful calls using Twitter API integration. Users make predictions about which players will hit home runs, and the bot announces when those predictions come true!
+A Discord bot that tracks daily home run predictions and logs them to a Google Sheet.
 
-## Features
+## How It Works
 
-- 🏟️ **Home Run Predictions**: Users can submit predictions for which players will hit home runs
-- 🎙️ **Dynamic Announcements**: Entertaining announcer-style messages when predictions hit
-- 📊 **Google Sheets Integration**: Stores all predictions with timestamps for leaderboard tracking
-- 🐦 **Twitter Streaming**: Real-time monitoring of MLB home run announcements from @MLBHR
-- 💬 **Discord Commands**: Easy-to-use slash commands for predictions and management
-- 🔐 **Permission System**: Moderator-only controls for managing announcements
-- 📅 **Daily Tracking**: Automatic sheet creation for each day with predictions and results
+1. Users submit their daily HR prediction with `!hr-call <player name>`
+2. The bot logs the call (player, username, timestamp) to a Google Sheet tab for that day
+3. One call per user per day — use `!remove-call` to change your pick
 
-## Prerequisites
+## Commands
 
-- Node.js 12.0.0 or higher
-- A Discord bot token (from [Discord Developer Portal](https://discord.com/developers/applications))
-- Twitter API v2 Bearer token (from [Twitter Developer Portal](https://developer.twitter.com))
-- Google Service Account credentials for Sheets API access
-- A Google Sheet for storing predictions
+| Command | Description |
+|---------|-------------|
+| `!hr-call <player name>` | Submit your HR prediction for today |
+| `!remove-call` | Remove your call and pick again |
+| `!calls` | See all of today's predictions |
+| `!help` | Show available commands |
 
-## Installation
+---
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/DingerBot.git
-   cd DingerBot
+## Setup
+
+### 1. Discord Bot
+
+- Create an application at [discord.com/developers](https://discord.com/developers/applications)
+- Go to **Bot** tab → copy the token
+- Under **Privileged Gateway Intents**, enable:
+  - ✅ Message Content Intent
+  - ✅ Server Members Intent
+- Invite the bot to your server using:
+  ```
+  https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=3072&scope=bot
+  ```
+
+### 2. Google Sheet Setup
+
+> **Send these instructions to the Google Sheet owner:**
+
+#### What the sheet owner needs to do:
+
+1. **Share the Google Sheet** with this email address as an **Editor**:
    ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
+   dinger-bot@home-run-call-bot.iam.gserviceaccount.com
    ```
+   - Open the Google Sheet → click **Share** (top right)
+   - Paste the email above → set role to **Editor** → click Send
 
-3. **Create configuration file**
-   - Copy `config-example.js` to `config-dev.js`
-   - Fill in your credentials:
-   ```javascript
-   module.exports = {
-       discord_bot_token: 'YOUR_DISCORD_BOT_TOKEN',
-       twitter_token: 'YOUR_TWITTER_BEARER_TOKEN',
-       spreadsheetID: 'YOUR_GOOGLE_SHEET_ID',
-       spreadsheetLink: 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID',
-       credentials: {
-           // Your Google Service Account JSON
-       }
-   };
-   ```
+That's it! The bot will automatically create a new tab for each day's calls.
 
-4. **Set up Google Service Account**
-   - Go to [Google Cloud Console](https://console.cloud.google.com)
-   - Create a new service account
-   - Generate a JSON key
-   - Share your Google Sheet with the service account email
-   - Add the JSON credentials to `config-dev.js`
+#### How the sheet works:
+- Each day gets its own tab named with the date (e.g. `3/12/2026`)
+- Columns: **Name** (Discord username), **Call** (player name), **Timestamp**
+- The bot creates the tab automatically on the first call of the day
 
-5. **Add bot to Discord server**
-   - Go to Developer Portal → OAuth2 → URL Generator
-   - Select scopes: `bot`
-   - Select permissions: `Send Messages`, `Read Messages/View Channels`
-   - Use the generated URL to invite the bot
+### 3. Configuration
 
-## Usage
+Copy `config-example.js` to `config-dev.js` and fill in:
 
-### Starting the Bot
-
-```bash
-npm start
-```
-
-The bot will:
-1. Connect to Discord
-2. Initialize Twitter stream rules
-3. Start listening for home run announcements
-4. Be ready to accept user commands
-
-### Discord Commands
-
-All commands should be entered in the designated home-run-calls channel.
-
-#### `!hr-call <player name>`
-Submit a home run prediction for today.
-
-**Example:**
-```
-!hr-call Aaron Judge
-```
-
-**Response:** DM confirmation with the prediction and sheet link
-
-**Rules:**
-- One prediction per user per day
-- Use the player's full name
-- Use `!remove-call` to submit a different prediction
-
----
-
-#### `!remove-call`
-Remove your home run prediction for today.
-
-**Example:**
-```
-!remove-call
-```
-
-**Response:** DM confirmation that your prediction has been removed
-
-**Rules:**
-- Only works if you've already submitted a prediction today
-- Allows you to make a new prediction after removal
-
----
-
-#### `!enable-announcer`
-Enable the bot's announcement feature in the current channel. **(Moderator only)**
-
-**Example:**
-```
-!enable-announcer
-```
-
-**Response:** DM confirmation that announcements are now active
-
-**Features:**
-- When enabled, the bot posts messages when predictions match home runs
-- Can only be run by users with Moderator or Administrator roles
-- The bot will post announcements in the channel where this command is run
-
----
-
-#### `!disable-announcer`
-Disable the bot's announcement feature. **(Moderator only)**
-
-**Example:**
-```
-!disable-announcer
-```
-
-**Response:** DM confirmation that announcements are disabled
-
----
-
-#### `!help`
-Display the list of available commands.
-
-**Example:**
-```
-!help
-```
-
-**Response:** DM with formatted command documentation
-
-## Google Sheets Setup
-
-The bot automatically creates a new sheet for each day with the following columns:
-
-| Column | Description |
-|--------|-------------|
-| **Name** | Discord username of the predictor |
-| **Call** | Player name that was predicted |
-| **Timestamp** | Date and time (ET) when the prediction was submitted |
-
-### Sheet Organization
-
-- **Sheet name format**: `MM/DD/YYYY` (e.g., `01/26/2026`)
-- **One sheet per day**: New sheet automatically created each day
-- **Shared leaderboard**: Everyone can view all predictions and track hits/misses
-
-### Creating the Base Sheet
-
-1. Create a new Google Sheet
-2. Share it with your service account email
-3. Update `spreadsheetID` in your config file
-4. The bot will create sheets automatically as needed
-
-## Configuration
-
-### `config-dev.js` Structure
-
-```javascript
+```js
 module.exports = {
-    // Discord Bot Token (from Developer Portal)
-    discord_bot_token: 'YOUR_TOKEN_HERE',
-    
-    // Twitter API v2 Bearer Token
-    twitter_token: 'YOUR_BEARER_TOKEN_HERE',
-    
-    // Google Sheet ID (from sheet URL)
-    spreadsheetID: 'SHEET_ID_FROM_URL',
-    
-    // Public link to the Google Sheet
-    spreadsheetLink: 'https://docs.google.com/spreadsheets/d/...',
-    
-    // Google Service Account JSON credentials
-    credentials: {
-        type: 'service_account',
-        project_id: '...',
-        private_key_id: '...',
-        private_key: '...',
-        client_email: '...',
-        client_id: '...',
-        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-        token_uri: 'https://oauth2.googleapis.com/token',
-        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs'
-    }
+    discord_bot_token: 'YOUR_DISCORD_BOT_TOKEN',
+    spreadsheetID: 'YOUR_GOOGLE_SHEET_ID',  // from the sheet URL
+    spreadsheetLink: 'https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID',
+    credentials: require('./google-credentials.json')
 };
 ```
 
-## Architecture
-
-### Core Components
-
-- **Discord Message Handler**: Processes user commands and manages interactions
-- **Twitter Stream Connector**: Real-time connection to Twitter API with auto-reconnect logic
-- **Google Sheets Manager**: Handles prediction storage and retrieval
-- **Announcement Engine**: Formats and posts announcements when predictions match
-
-### Data Flow
-
+The **spreadsheet ID** is the long string in the Google Sheet URL:
 ```
-Discord User Command
-    ↓
-Parse Command & Extract Player Name
-    ↓
-Google Sheets API: Store Prediction
-    ↓
-Add User to Today's Callers List
-    ↓
-Send Confirmation DM
-    ↓
---- (Later) ---
-    ↓
-Twitter Stream: New Home Run Posted
-    ↓
-Extract Player Name
-    ↓
-Google Sheets API: Search Today's Predictions
-    ↓
-Match Found?
-    ├─ YES → Format Announcement → Post to Discord
-    └─ NO → Continue Listening
+https://docs.google.com/spreadsheets/d/[THIS_PART]/edit
 ```
 
-## API Integrations
+Place your Google service account JSON key file as `google-credentials.json` in the project root.
 
-### Twitter API v2
-- **Endpoint**: Filtered Stream API
-- **Authentication**: Bearer token in headers
-- **Function**: Real-time home run announcement monitoring
-- **Reconnection**: Automatic with exponential backoff (1ms, 2ms, 4ms, etc.)
+### 4. Run
 
-### Google Sheets API
-- **Authentication**: Service Account credentials
-- **Functions**: Create sheets, read rows, add rows, delete rows
-- **Rate Limiting**: Handled by google-spreadsheet library
+```bash
+npm install
+node index.js
 
-### Discord API
-- **Library**: discord.js v12
-- **Features**: Message handling, DM sending, role-based permissions
+# Or with PM2:
+pm2 start index.js --name dinger-bot
+```
 
-## Error Handling
+## Requirements
 
-The bot includes comprehensive error handling:
-
-- **Twitter Connection Errors**: Automatic reconnection with exponential backoff
-- **Google Sheets Errors**: Logged and reported to user
-- **Discord Errors**: Graceful degradation with error messages
-- **Invalid Commands**: User-friendly error responses via DM
-
-## Logging
-
-The bot logs important events to the console with prefixes:
-
-- `[BOT]` - Discord bot events
-- `[STREAM]` - Twitter stream events
-- `[API]` - API call results
-- `[SHEETS]` - Google Sheets operations
-- `[MATCH]` - Home run prediction matches
-- `[ACTION]` - Major bot actions
-- `[ERROR]` - Error conditions
-- `[RECONNECT]` - Connection recovery
-
-## Performance Considerations
-
-- **Google Sheets Queries**: Minimized by checking only today's sheet
-- **Twitter Reconnection**: Exponential backoff prevents rate limiting
-- **Message Queue**: 2-second delay before announcements ensures data consistency
-- **State Management**: In-memory tracking prevents repeated API calls
-
-## Troubleshooting
-
-### Bot doesn't respond to commands
-- Ensure bot has message read/send permissions in the channel
-- Verify bot is in the correct Discord server
-- Check console logs for error messages
-
-### No announcements when predictions match
-- Verify announcer is enabled with `!enable-announcer`
-- Check that bot has permission to send messages in announcement channel
-- Verify Twitter bearer token is valid
-- Check that player names match exactly (case-sensitive)
-
-### Google Sheets not updating
-- Verify service account email has edit access to the sheet
-- Check that spreadsheet ID is correct in config
-- Ensure service account credentials are valid JSON
-
-### Twitter stream disconnects frequently
-- Check internet connection stability
-- Verify Twitter bearer token hasn't expired
-- Check rate limiting (Twitter API v2 limits apply)
-
-## Security Notes
-
-- **Never commit `config-dev.js`** to version control
-- Use environment variables for production deployment
-- Restrict Discord bot permissions to minimum required
-- Rotate API tokens regularly
-- Limit service account permissions to specific sheets
-
-## Future Enhancements
-
-- [ ] Slash commands support (Discord.js v13+)
-- [ ] Statistics and season leaderboards
-- [ ] Prediction accuracy tracking
-- [ ] Multi-game support (other sports)
-- [ ] Custom announcement phrases configuration
-- [ ] Web dashboard for leaderboard viewing
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the ISC License - see the LICENSE file for details.
-
-## Support
-
-For issues and questions:
-- Open an issue on GitHub
-- Check existing issues for solutions
-- Refer to API documentation:
-  - [Discord.js Documentation](https://discord.js.org)
-  - [Twitter API v2 Docs](https://developer.twitter.com/en/docs/twitter-api)
-  - [Google Sheets API Docs](https://developers.google.com/sheets/api)
-
-## Changelog
-
-### Version 2.0.0
-- Complete code refactor with comprehensive documentation
-- Improved error handling and logging
-- Better code organization with clear sections
-- Fixed deprecated API usage
-- Removed unused dependencies
-- Added JSDoc comments for all functions
-- Improved variable naming for clarity
-
-### Version 1.0.0
-- Initial release
-- Basic home run prediction tracking
-- Twitter streaming integration
-- Google Sheets storage
-- Discord command handling
-
----
-
-**Made with ⚾ by Riley Hoffman**
+- Node.js 16+
+- discord.js v14
+- Google Sheets API enabled on your Google Cloud project
